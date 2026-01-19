@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -24,8 +27,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final RedisAuthService redisAuthService;
+    private final GoogleOAuthService googleOAuthService;
 
-    public TokenResponseDto login(LoginRequestDto loginRequest){
+    public TokenResponseDto login(LoginRequestDto loginRequest) {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         try {
@@ -48,21 +52,22 @@ public class AuthService {
         return new TokenResponseDto(token, refresToken);
     }
 
-    public TokenResponseDto refreshToken(RefreshTokenRequest request){
+    public TokenResponseDto refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
         //check redis first
-        if(!redisAuthService.isRefreshTokenValid(refreshToken)){
+        if (!redisAuthService.isRefreshTokenValid(refreshToken)) {
             if (!userRepository.findByRefresToken(refreshToken).isPresent()) {
                 throw new BusinessException("Refresh token is not present", HttpStatus.BAD_REQUEST);
             }
         }
 
-        if(!jwtUtil.validate(refreshToken)  ){
-            throw new BusinessException("Invalid refresh token",  HttpStatus.BAD_REQUEST);
+        if (!jwtUtil.validate(refreshToken)) {
+            throw new BusinessException("Invalid refresh token", HttpStatus.BAD_REQUEST);
         }
         String username = jwtUtil.getUsername(refreshToken);
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));;
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        ;
         String role = user.getRole().getType();
         String newAccessToken = jwtUtil.generateToken(username, role);
         String newRefreshToken = jwtUtil.generateRefreshToken(username, role);
@@ -78,5 +83,24 @@ public class AuthService {
         redisAuthService.evictUserDetails(username);
 
         return new TokenResponseDto(newAccessToken, newRefreshToken);
+    }
+
+    public TokenResponseDto loginWithGoogle(String googleToken) {
+        try {
+            User user = googleOAuthService.verifyGoogleToken(googleToken);
+
+            String role = user.getRole().getType();
+            String token = jwtUtil.generateToken(user.getUsername(), role);
+            String refreshToken = jwtUtil.generateRefreshToken(user.getUsername(), role);
+            user.setRefresToken(refreshToken);
+            userRepository.save(user);
+
+            // Cache redis
+            redisAuthService.cacheRefreshToken(refreshToken, user.getUsername());
+            redisAuthService.evictUserDetails(user.getUsername());
+            return new TokenResponseDto(token, refreshToken);
+        } catch (GeneralSecurityException | IOException e) {
+            throw new BusinessException("Invalid Google token: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

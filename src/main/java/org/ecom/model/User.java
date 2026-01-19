@@ -27,6 +27,15 @@ public class User {
     @Column(name = "refresh_token")
     private String refresToken;
 
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
+    @Column(name = "provider")
+    private String provider;
+
     public User(UserRequestDto userRequestDto) {
         this.username = userRequestDto.getUsername();
         this.password = userRequestDto.getPassword();

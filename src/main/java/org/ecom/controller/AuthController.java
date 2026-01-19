@@ -2,6 +2,7 @@ package org.ecom.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.ecom.dto.GoogleLoginRequestDto;
 import org.ecom.dto.LoginRequestDto;
 import org.ecom.dto.RefreshTokenRequest;
 import org.ecom.dto.TokenResponseDto;
@@ -27,5 +28,10 @@ public class AuthController {
     @PostMapping("/refresh_token")
     public ResponseEntity<ApiResponse<TokenResponseDto>> refreshToken(@RequestBody RefreshTokenRequest request){
         return ResponseEntity.ok(ApiResponse.ok(auth.refreshToken(request)));
+    }
+
+    @PostMapping("/google/login")
+    public ResponseEntity<ApiResponse<TokenResponseDto>> loginWithGoogle(@RequestBody @Valid GoogleLoginRequestDto googleLoginRequestDto){
+        return ResponseEntity.ok(ApiResponse.ok(auth.loginWithGoogle(googleLoginRequestDto.getGoogleToken())));
     }
 }
