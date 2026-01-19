@@ -31,7 +31,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable) // tắt csrf cho rest api
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/user/create", "/auth/login", "/auth/refresh_token").permitAll()
+                        .requestMatchers("/actuator/health", "/user/create", "/auth/**", "/auth/refresh_token").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/getUser").hasAnyRole("USER","ADMIN")
                         .anyRequest().authenticated()
                 ).userDetailsService(userDetailsService)
