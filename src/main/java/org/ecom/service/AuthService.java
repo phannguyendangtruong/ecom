@@ -1,0 +1,82 @@
+package org.ecom.service;
+
+import lombok.RequiredArgsConstructor;
+import org.ecom.dto.LoginRequestDto;
+import org.ecom.dto.RefreshTokenRequest;
+import org.ecom.dto.TokenResponseDto;
+import org.ecom.exception.BusinessException;
+import org.ecom.model.User;
+import org.ecom.repository.UserRepository;
+import org.ecom.util.JwtUtil;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
+    private final RedisAuthService redisAuthService;
+
+    public TokenResponseDto login(LoginRequestDto loginRequest){
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (BadCredentialsException e) {
+            throw new BusinessException("Username or password is not correct", HttpStatus.BAD_REQUEST);
+        }
+        String role = user.getRole().getType();
+        String token = jwtUtil.generateToken(user.getUsername(), role);
+        String refresToken = jwtUtil.generateRefreshToken(user.getUsername(), role);
+        user.setRefresToken(refresToken);
+        userRepository.save(user);
+        //cache redis
+        redisAuthService.cacheRefreshToken(refresToken, user.getUsername());
+        // Invalidate cache cũ của user để force reload từ DB
+        redisAuthService.evictUserDetails(user.getUsername());
+        return new TokenResponseDto(token, refresToken);
+    }
+
+    public TokenResponseDto refreshToken(RefreshTokenRequest request){
+        String refreshToken = request.getRefreshToken();
+
+        //check redis first
+        if(!redisAuthService.isRefreshTokenValid(refreshToken)){
+            if (!userRepository.findByRefresToken(refreshToken).isPresent()) {
+                throw new BusinessException("Refresh token is not present", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        if(!jwtUtil.validate(refreshToken)  ){
+            throw new BusinessException("Invalid refresh token",  HttpStatus.BAD_REQUEST);
+        }
+        String username = jwtUtil.getUsername(refreshToken);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));;
+        String role = user.getRole().getType();
+        String newAccessToken = jwtUtil.generateToken(username, role);
+        String newRefreshToken = jwtUtil.generateRefreshToken(username, role);
+        user.setRefresToken(newRefreshToken);
+        userRepository.save(user);
+
+        //revoke old token in redis
+        redisAuthService.revokeRefreshToken(refreshToken);
+
+        //cache new token in redis
+        redisAuthService.cacheRefreshToken(newRefreshToken, username);
+        //invalid user cache
+        redisAuthService.evictUserDetails(username);
+
+        return new TokenResponseDto(newAccessToken, newRefreshToken);
+    }
+}

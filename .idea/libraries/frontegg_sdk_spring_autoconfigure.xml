@@ -1,0 +1,34 @@
+<component name="libraryTable">
+  <library name="frontegg.sdk.spring.autoconfigure" type="repository">
+    <properties maven-id="com.frontegg.sdk.spring:spring-autoconfigure:0.0.9" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/spring/spring-autoconfigure/0.0.9/spring-autoconfigure-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-autoconfigure/3.2.5/spring-boot-autoconfigure-3.2.5.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot/3.2.5/spring-boot-3.2.5.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-core/6.1.6/spring-core-6.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-jcl/6.1.6/spring-jcl-6.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-context/6.1.6/spring-context-6.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-aop/6.1.6/spring-aop-6.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-beans/6.1.6/spring-beans-6.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-expression/6.1.6/spring-expression-6.1.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/io/micrometer/micrometer-observation/1.12.5/micrometer-observation-1.12.5.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/io/micrometer/micrometer-commons/1.12.5/micrometer-commons-1.12.5.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/spring/spring-middleware/0.0.9/spring-middleware-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/middleware/0.0.9/middleware-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/authenticator/0.0.9/authenticator-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/common/0.0.9/common-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/api-client/0.0.9/api-client-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/frontegg/sdk/config/0.0.9/config-0.0.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/auth0/java-jwt/4.4.0/java-jwt-4.4.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/retry/spring-retry/2.0.6/spring-retry-2.0.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.17.1/jackson-core-2.17.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.17.1/jackson-databind-2.17.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.1/jackson-datatype-jsr310-2.17.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.17.1/jackson-annotations-2.17.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/jakarta/servlet/jakarta.servlet-api/6.0.0/jakarta.servlet-api-6.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

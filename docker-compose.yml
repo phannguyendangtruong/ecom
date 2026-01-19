@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  #postgresql database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ecom-postgres
+    environment:
+      POSTGRES_DB: ecom_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecom-network
+# Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ecom-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - ecom-network
+# spring boot application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecom-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecom_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ecom-network
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  ecom-network:
+    driver: bridge
