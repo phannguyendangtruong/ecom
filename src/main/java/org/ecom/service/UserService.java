@@ -2,6 +2,7 @@ package org.ecom.service;
 
 import org.ecom.dto.UserRequestDto;
 import org.ecom.exception.BusinessException;
+import org.ecom.mapper.UserMapper;
 import org.ecom.model.Role;
 import org.ecom.model.User;
 import org.ecom.repository.UserRepository;
@@ -14,16 +15,20 @@ import org.springframework.stereotype.Service;
 public class UserService extends BaseServiceImpl<User, Long>{
     private final UserRepository userRepository;
     private final RoleService roleService;
-    protected UserService(UserRepository userRepository, RoleService roleService) {
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    protected UserService(UserRepository userRepository, RoleService roleService, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         super(userRepository);
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public User save(User entity){
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        entity.setPassword(encoder.encode(entity.getPassword()));
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         return userRepository.save(entity);
     }
     public boolean existUsername(String username){
@@ -41,7 +46,7 @@ public class UserService extends BaseServiceImpl<User, Long>{
 
         Role role = roleService.findById(userDto.getRoleId()).
                 orElseThrow(() -> new BusinessException("Role not found", HttpStatus.BAD_REQUEST));
-        User user = new User(userDto);
+        User user = userMapper.toEntity(userDto);
         user.setRole(role);
         return save(user);
     }

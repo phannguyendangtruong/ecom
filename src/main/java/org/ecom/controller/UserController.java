@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.ecom.dto.UserReponseDto;
 import org.ecom.dto.UserRequestDto;
+import org.ecom.mapper.UserMapper;
 import org.ecom.model.User;
 import org.ecom.reponse.ApiResponse;
 import org.ecom.service.UserService;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<User>> get(@PathVariable Long id) {
         return userService.findById(id)
@@ -27,7 +30,8 @@ public class UserController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<UserReponseDto>> create(@RequestBody @Valid UserRequestDto userRequest){
-        return ResponseEntity.ok(ApiResponse.ok(
-                new UserReponseDto(userService.createUser(userRequest))));
+        User user = userService.createUser(userRequest);
+        UserReponseDto userReponseDto = userMapper.toDto(user);
+        return ResponseEntity.ok(ApiResponse.ok(userReponseDto));
     }
 }

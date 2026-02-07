@@ -45,7 +45,7 @@ public class RedisAuthService {
      * Cache refresh token để kiểm tra nhanh
      */
     public void cacheRefreshToken(String refreshToken, String username){
-        String key = USER_CACHE_PREFIX + username;
+        String key = TOKEN_CACHE_PREFIX + refreshToken;
         redisTemplate.opsForValue().set(key, username, TOKEN_CACHE_TTL, TimeUnit.MINUTES);
     }
 

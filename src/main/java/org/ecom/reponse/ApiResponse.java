@@ -2,6 +2,7 @@ package org.ecom.reponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 
 @Data
@@ -11,6 +12,7 @@ public class ApiResponse<T> {
     private T data;
     private String message;
     private int code;
+    private String traceId;
 
     public static <T> ApiResponse<T> ok(T data) {
         ApiResponse<T> res = new ApiResponse<>();
@@ -29,10 +31,12 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> fail(HttpStatus status, String message) {
+        String traceId = MDC.get("traceId");
         ApiResponse<T> res = new ApiResponse<>();
         res.success = false;
         res.code = status.value();
         res.message = message;
+        res.traceId = traceId;
         return res;
     }
 }

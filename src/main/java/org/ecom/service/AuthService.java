@@ -1,6 +1,7 @@
 package org.ecom.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ecom.dto.LoginRequestDto;
 import org.ecom.dto.RefreshTokenRequest;
 import org.ecom.dto.TokenResponseDto;
@@ -22,6 +23,7 @@ import java.security.GeneralSecurityException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -30,6 +32,7 @@ public class AuthService {
     private final GoogleOAuthService googleOAuthService;
 
     public TokenResponseDto login(LoginRequestDto loginRequest) {
+        log.info("Login request: {}", loginRequest);
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         try {
@@ -43,7 +46,7 @@ public class AuthService {
         String role = user.getRole().getType();
         String token = jwtUtil.generateToken(user.getUsername(), role);
         String refresToken = jwtUtil.generateRefreshToken(user.getUsername(), role);
-        user.setRefresToken(refresToken);
+        user.setRefreshToken(refresToken);
         userRepository.save(user);
         //cache redis
         redisAuthService.cacheRefreshToken(refresToken, user.getUsername());
@@ -57,7 +60,7 @@ public class AuthService {
 
         //check redis first
         if (!redisAuthService.isRefreshTokenValid(refreshToken)) {
-            if (!userRepository.findByRefresToken(refreshToken).isPresent()) {
+            if (!userRepository.findByRefreshToken(refreshToken).isPresent()) {
                 throw new BusinessException("Refresh token is not present", HttpStatus.BAD_REQUEST);
             }
         }
@@ -71,7 +74,7 @@ public class AuthService {
         String role = user.getRole().getType();
         String newAccessToken = jwtUtil.generateToken(username, role);
         String newRefreshToken = jwtUtil.generateRefreshToken(username, role);
-        user.setRefresToken(newRefreshToken);
+        user.setRefreshToken(newRefreshToken);
         userRepository.save(user);
 
         //revoke old token in redis
@@ -92,7 +95,7 @@ public class AuthService {
             String role = user.getRole().getType();
             String token = jwtUtil.generateToken(user.getUsername(), role);
             String refreshToken = jwtUtil.generateRefreshToken(user.getUsername(), role);
-            user.setRefresToken(refreshToken);
+            user.setRefreshToken(refreshToken);
             userRepository.save(user);
 
             // Cache redis

@@ -25,7 +25,7 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
     @Column(name = "refresh_token")
-    private String refresToken;
+    private String refreshToken;
 
     @Column(name = "email")
     private String email;
@@ -36,8 +36,5 @@ public class User {
     @Column(name = "provider")
     private String provider;
 
-    public User(UserRequestDto userRequestDto) {
-        this.username = userRequestDto.getUsername();
-        this.password = userRequestDto.getPassword();
-    }
+    
 }

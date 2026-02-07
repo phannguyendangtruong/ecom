@@ -2,6 +2,7 @@ package org.ecom.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ecom.dto.GoogleLoginRequestDto;
 import org.ecom.dto.LoginRequestDto;
 import org.ecom.dto.RefreshTokenRequest;
@@ -17,21 +18,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final AuthService auth;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponseDto>> login(@RequestBody @Valid LoginRequestDto loginRequest){
+        log.info("Login request: {}", loginRequest);
         return ResponseEntity.ok(ApiResponse.ok(auth.login(loginRequest)));
     }
 
     @PostMapping("/refresh_token")
     public ResponseEntity<ApiResponse<TokenResponseDto>> refreshToken(@RequestBody RefreshTokenRequest request){
+        log.info("Refresh token request: {}", request);
         return ResponseEntity.ok(ApiResponse.ok(auth.refreshToken(request)));
     }
 
     @PostMapping("/google/login")
     public ResponseEntity<ApiResponse<TokenResponseDto>> loginWithGoogle(@RequestBody @Valid GoogleLoginRequestDto googleLoginRequestDto){
+        log.info("Login with google request: {}", googleLoginRequestDto);
         return ResponseEntity.ok(ApiResponse.ok(auth.loginWithGoogle(googleLoginRequestDto.getGoogleToken())));
     }
 }
