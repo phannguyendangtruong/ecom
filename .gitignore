@@ -54,12 +54,9 @@ Thumbs.db
 
 # Spring Boot
 application-local.properties
-application-dev.properties
-application-prod.properties
 
 # Secrets and sensitive files
 secrets/
 *.pem
 *.key
 *.cert
-

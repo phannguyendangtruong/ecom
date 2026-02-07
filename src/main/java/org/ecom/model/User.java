@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.ecom.dto.UserRequestDto;
 
 @Entity
 @Table(name = "users")
@@ -21,11 +20,9 @@ public class User {
     private String username;
     @Column(name ="password", nullable = false)
     private String password;
-    @OneToOne
-    @JoinColumn(name = "role_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-    @Column(name = "refresh_token")
-    private String refreshToken;
 
     @Column(name = "email")
     private String email;

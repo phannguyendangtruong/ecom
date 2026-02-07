@@ -5,7 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.ecom.reponse.ApiResponse;
+import org.ecom.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,7 +25,9 @@ public class AccessDeniedHandler  implements org.springframework.security.web.ac
 
         ApiResponse<Void> apiResponse = ApiResponse.fail(
                 HttpStatus.FORBIDDEN,
-                "Forbidden: You don't have permission to access this resource"
+                "Forbidden: You don't have permission to access this resource",
+                request.getRequestURI(),
+                null
         );
 
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));

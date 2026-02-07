@@ -5,7 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.ecom.reponse.ApiResponse;
+import org.ecom.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -24,8 +24,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         ApiResponse<Void> apiReponse = ApiResponse.fail(HttpStatus.UNAUTHORIZED,
-                "Unauthorized: Authentication required");
+                "Unauthorized: Authentication required",
+                request.getRequestURI(),
+                null);
         response.getWriter().write(objectMapper.writeValueAsString(apiReponse));
     }
 }
-

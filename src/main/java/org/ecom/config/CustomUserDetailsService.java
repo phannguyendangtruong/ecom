@@ -23,9 +23,11 @@ public class CustomUserDetailsService implements UserDetailsService{
         }
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        // Handle OAuth users who may not have passwords
+        String password = user.getPassword() != null ? user.getPassword() : "{noop}";
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
-                .password(user.getPassword())
+                .password(password)
                 .roles(user.getRole().getType())
                 .build();
         redisAuthService.cacheUserDetails(username, userDetails);
